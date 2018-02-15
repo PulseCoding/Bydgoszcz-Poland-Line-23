@@ -41,6 +41,7 @@ var actualCheckweigher2=0,stateCheckweigher2=0;
 var Paletizer,ctPaletizer=0,speedTempPaletizer=0,secPaletizer=0,stopCountPaletizer=0,flagStopPaletizer=0,flagPrintPaletizer=0,speedPaletizer=0,timePaletizer=0;
 var actualPaletizer=0,statePaletizer=0;
 var Barcode,secBarcode=0;
+var BarcodeLabel,secBarcodeLabel=0;
 var secEOL=0,secPubNub=0;
 var publishConfig;
 
@@ -129,6 +130,30 @@ var DoRead = function (){
                 secBarcode=0;
             }
             secBarcode++;
+            //Barcode -------------------------------------------------------------------------------------------------------------
+            //Barcode -------------------------------------------------------------------------------------------------------------
+            if(resp.register[90]==0&&resp.register[91]==0&&resp.register[92]==0&&resp.register[93]==0&&resp.register[94]==0&&resp.register[95]==0&&resp.register[96]==0&&resp.register[97]==0){
+              BarcodeLabel='0';
+            }else {
+              var digt1=hex2a(assignment(resp.register[90]).toString(16));
+              var digt2=hex2a(assignment(resp.register[91]).toString(16));
+              var digt3=hex2a(assignment(resp.register[92]).toString(16));
+              var digt4=hex2a(assignment(resp.register[93]).toString(16));
+              var digt5=hex2a(assignment(resp.register[94]).toString(16));
+              var digt6=hex2a(assignment(resp.register[95]).toString(16));
+              var digt7=hex2a(assignment(resp.register[96]).toString(16));
+              var digt8=hex2a(assignment(resp.register[97]).toString(16));
+              BarcodeLabel=digt1+digt2+digt3+digt4+digt5+digt6+digt7+digt8;
+            }
+            console.log(BarcodeLabel)
+            if(isNaN(BarcodeLabel)){
+              BarcodeLabel='0';
+            }
+  	        if(secBarcodeLabel>=60&&!isNaN(BarcodeLabel)){
+              //  writedataBarcode(Barcode,"pol_byd_Barcode_L23.log");
+                secBarcodeLabel=0;
+            }
+            secBarcodeLabel++;
             //Barcode -------------------------------------------------------------------------------------------------------------
           //JarSorter -------------------------------------------------------------------------------------------------------------
             ctJarSorter = joinWord(resp.register[25],resp.register[24]);
