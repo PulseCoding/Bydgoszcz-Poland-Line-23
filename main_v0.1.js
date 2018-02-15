@@ -132,20 +132,20 @@ var DoRead = function (){
             secBarcode++;
             //Barcode -------------------------------------------------------------------------------------------------------------
             //Barcode -------------------------------------------------------------------------------------------------------------
-            if(resp.register[90]==0&&resp.register[91]==0&&resp.register[92]==0&&resp.register[93]==0&&resp.register[94]==0&&resp.register[95]==0&&resp.register[96]==0&&resp.register[97]==0){
+            if(resp.register[80]==0&&resp.register[81]==0&&resp.register[82]==0&&resp.register[83]==0&&resp.register[84]==0&&resp.register[85]==0&&resp.register[86]==0&&resp.register[87]==0){
               BarcodeLabel='0';
             }else {
-              var digt1=hex2a(assignment(resp.register[90]).toString(16));
-              var digt2=hex2a(assignment(resp.register[91]).toString(16));
-              var digt3=hex2a(assignment(resp.register[92]).toString(16));
-              var digt4=hex2a(assignment(resp.register[93]).toString(16));
-              var digt5=hex2a(assignment(resp.register[94]).toString(16));
-              var digt6=hex2a(assignment(resp.register[95]).toString(16));
-              var digt7=hex2a(assignment(resp.register[96]).toString(16));
-              var digt8=hex2a(assignment(resp.register[97]).toString(16));
+              var digt1=hex2a(assignment(resp.register[80]).toString(16));
+              var digt2=hex2a(assignment(resp.register[81]).toString(16));
+              var digt3=hex2a(assignment(resp.register[82]).toString(16));
+              var digt4=hex2a(assignment(resp.register[83]).toString(16));
+              var digt5=hex2a(assignment(resp.register[84]).toString(16));
+              var digt6=hex2a(assignment(resp.register[85]).toString(16));
+              var digt7=hex2a(assignment(resp.register[86]).toString(16));
+              var digt8=hex2a(assignment(resp.register[87]).toString(16));
               BarcodeLabel=digt1+digt2+digt3+digt4+digt5+digt6+digt7+digt8;
             }
-            console.log(BarcodeLabel)
+            console.log(resp.register[80],resp.register[81],resp.register[82],resp.register[83],resp.register[84],resp.register[85],resp.register[86],resp.register[87],BarcodeLabel)
             if(isNaN(BarcodeLabel)){
               BarcodeLabel='0';
             }
