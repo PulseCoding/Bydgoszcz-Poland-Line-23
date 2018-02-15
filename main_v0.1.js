@@ -122,7 +122,6 @@ var DoRead = function (){
               var dig8=hex2a(assignment(resp.register[73]).toString(16));
               Barcode=dig1+dig2+dig3+dig4+dig5+dig6+dig7+dig8;
             }
-            console.log(Barcode,resp.register[66],resp.register[67],resp.register[68],resp.register[69],resp.register[70],resp.register[71],resp.register[72],resp.register[73])
             if(isNaN(Barcode)){
               Barcode='0';
             }
@@ -146,7 +145,6 @@ var DoRead = function (){
               var digt8=hex2a(assignment(resp.register[87]).toString(16));
               BarcodeLabel=digt1+digt2+digt3+digt4+digt5+digt6+digt7+digt8;
             }
-            console.log(resp.register[80],resp.register[81],resp.register[82],resp.register[83],resp.register[84],resp.register[85],resp.register[86],resp.register[87],BarcodeLabel)
             if(isNaN(BarcodeLabel)){
               BarcodeLabel='0';
             }
