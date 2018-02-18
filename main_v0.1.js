@@ -5,6 +5,7 @@ try{
   var modbus = require('jsmodbus');
   var fs = require('fs');
   var PubNub = require('pubnub');
+var mongoClient =  require('mongodb').MongoClient
 //Asignar host, puerto y otros par ametros al cliente Modbus
 var client = modbus.client.tcp.complete({
     'host': "192.168.20.21",
@@ -41,7 +42,7 @@ var actualCheckweigher2=0,stateCheckweigher2=0;
 var Paletizer,ctPaletizer=0,speedTempPaletizer=0,secPaletizer=0,stopCountPaletizer=0,flagStopPaletizer=0,flagPrintPaletizer=0,speedPaletizer=0,timePaletizer=0;
 var actualPaletizer=0,statePaletizer=0;
 var Barcode,secBarcode=0;
-var BarcodeLabel,secBarcodeLabel=0;
+var BarcodeLabel,secBarcodeLabel=0,eanGlobal= '0', registerOutput = false, itfOuterGlobal = '0';
 var secEOL=0,secPubNub=0;
 var publishConfig;
 
@@ -125,6 +126,7 @@ var DoRead = function (){
             if(isNaN(Barcode)){
               Barcode='0';
             }
+            itfOuterGlobal = Barcode
   	        if(secBarcode>=60&&!isNaN(Barcode)){
                 writedataBarcode(Barcode,"pol_byd_Barcode_L23.log");
                 secBarcode=0;
@@ -148,8 +150,10 @@ var DoRead = function (){
             if(isNaN(BarcodeLabel)){
               BarcodeLabel='0';
             }
+            if (BarcodeLabel != eanGlobal)
+            	eanGlobal = String(BarcodeLabel)
   	        if(secBarcodeLabel>=60&&!isNaN(BarcodeLabel)){
-              //  writedataBarcode(Barcode,"pol_byd_Barcode_L23.log");
+              console.log(BarcodeLabel)
                 secBarcodeLabel=0;
             }
             secBarcodeLabel++;
@@ -1027,6 +1031,41 @@ var DoRead = function (){
           //EOL --------------------------------------------------------------------------------------------------------------------
     });//END Client Read
 };
+
+setTimeout(function() {
+	mongoClient.connect('mongodb://localhost:27017',function(err, client) {
+	if (err) throw err
+	var db = client.db('BarcodeReaderQuality')
+		setInterval( function () {
+			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
+				if (err) throw err
+				let expectedContent = resp
+					db.collection('actualData').findOne({},function(err,resp){
+						let isValid = match(itfOuterGlobal, expectedContent)
+						if(isValid){
+							registerOutput = false
+							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
+							db.collection('actualData').updateOne({},query, function(err, succ){null})
+						}
+						else if (!resp.flag && !isValid){
+								registerOutput = false
+								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
+								db.collection('actualData').updateOne({},query, function(err, succ){null})
+						} else if (resp.flag && resp.date < Date.now() - 5 * 60000)
+								registerOutput = true
+					})
+			})
+		},1000)
+	})
+},30000)
+
+function match(val1, arr) {
+	for (let i in arr) {
+		if (arr[i].itfOuter == val1)
+			return true
+	}
+	return false
+}
 
 var assignment = function (val){
   var result;
