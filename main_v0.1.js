@@ -42,7 +42,7 @@ var actualCheckweigher2=0,stateCheckweigher2=0;
 var Paletizer,ctPaletizer=0,speedTempPaletizer=0,secPaletizer=0,stopCountPaletizer=0,flagStopPaletizer=0,flagPrintPaletizer=0,speedPaletizer=0,timePaletizer=0;
 var actualPaletizer=0,statePaletizer=0;
 var Barcode,secBarcode=0;
-var BarcodeLabel,secBarcodeLabel=0,eanGlobal= '0', registerOutput = false, itfOuterGlobal = '0';
+var BarcodeLabel,secBarcodeLabel=0,eanGlobal= '0', registerOutput = 0, itfOuterGlobal = '0';
 var secEOL=0,secPubNub=0;
 var publishConfig;
 
@@ -1029,35 +1029,37 @@ var DoRead = function (){
           secEOL++;
           //EOL --------------------------------------------------------------------------------------------------------------------
     });//END Client Read
+    setTimeout(function() {
+    	mongoClient.connect('mongodb://localhost:27017',function(err, client) {
+    	if (err) throw err
+    	var db = client.db('BarcodeReaderQuality')
+    		setInterval( function () {
+    			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
+    				if (err) throw err
+    				let expectedContent = resp
+    					db.collection('actualData').findOne({},function(err,resp){
+    						let isValid = match(itfOuterGlobal, expectedContent), state
+    						if(isValid){
+    							registerOutput = 0
+    							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
+    							db.collection('actualData').updateOne({},query, function(err, succ){null})
+    						}
+    						else if (!resp.flag && !isValid){
+    								registerOutput = 0
+    								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
+    								db.collection('actualData').updateOne({},query, function(err, succ){null})
+    						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
+    								registerOutput = 200
+                }
+                client.writeSingleRegister(99,registerOutput).then(function(resp) {console.log(resp)})
+    					})
+    			})
+    		},1000)
+    	})
+    },30000)
 };
 
-setTimeout(function() {
-	mongoClient.connect('mongodb://localhost:27017',function(err, client) {
-	if (err) throw err
-	var db = client.db('BarcodeReaderQuality')
-		setInterval( function () {
-			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
-				if (err) throw err
-				let expectedContent = resp
-					db.collection('actualData').findOne({},function(err,resp){
-						let isValid = match(itfOuterGlobal, expectedContent), state
-						if(isValid){
-							registerOutput = false
-							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
-							db.collection('actualData').updateOne({},query, function(err, succ){null})
-						}
-						else if (!resp.flag && !isValid){
-								registerOutput = false
-								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
-								db.collection('actualData').updateOne({},query, function(err, succ){null})
-						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
-								registerOutput = true
-            }
-					})
-			})
-		},1000)
-	})
-},30000)
+
 
 function match(val1, arr) {
 	for (let i in arr) {
