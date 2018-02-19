@@ -1167,6 +1167,8 @@ client.on('connect', function(err) {
       								registerOutput = 200
                   }
                   client.writeSingleRegister(130,registerOutput).then(function(resp) {console.log(resp)})
+                  client.writeSingleCoil(2001,true).then(function(resp) {console.log(resp)})
+                  client.writeSingleCoil(4001,true).then(function(resp) {console.log(resp)})
       					})
       			})
       		},1000)
