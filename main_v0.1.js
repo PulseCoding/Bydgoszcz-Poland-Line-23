@@ -1053,6 +1053,7 @@ setTimeout(function() {
 								db.collection('actualData').updateOne({},query, function(err, succ){null})
 						} else if (resp.flag && resp.date < Date.now() - 5 * 60000)
 								registerOutput = true
+            console.log(registerOutput, eanGlobal, itfOuterGlobal)
 					})
 			})
 		},1000)
