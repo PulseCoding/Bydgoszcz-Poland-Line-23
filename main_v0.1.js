@@ -1052,7 +1052,7 @@ var DoRead = function (){
     						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
     								registerOutput = 200
                 }
-                client.writeSingleRegister(99,registerOutput).then(function(resp) {null})
+                client.writeSingleRegister(95,registerOutput).then(function(resp) {null})
     					})
     			})
     		},1000)
