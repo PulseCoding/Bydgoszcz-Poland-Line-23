@@ -126,7 +126,7 @@ var DoRead = function (){
             if(isNaN(Barcode)){
               Barcode='0';
             }
-            itfOuterGlobal = Barcode
+            itfOuterGlobal = String(Barcode).replace(/[^\d]/g,'')
   	        if(secBarcode>=60&&!isNaN(Barcode)){
                 writedataBarcode(Barcode,"pol_byd_Barcode_L23.log");
                 secBarcode=0;
@@ -151,9 +151,8 @@ var DoRead = function (){
               BarcodeLabel='0';
             }
             if (BarcodeLabel != eanGlobal)
-            	eanGlobal = String(BarcodeLabel)
+            	eanGlobal = String(BarcodeLabel).replace(/[^\d]/g,'')
   	        if(secBarcodeLabel>=60&&!isNaN(BarcodeLabel)){
-              console.log(BarcodeLabel)
                 secBarcodeLabel=0;
             }
             secBarcodeLabel++;
