@@ -42,7 +42,7 @@ var actualCheckweigher2=0,stateCheckweigher2=0;
 var Paletizer,ctPaletizer=0,speedTempPaletizer=0,secPaletizer=0,stopCountPaletizer=0,flagStopPaletizer=0,flagPrintPaletizer=0,speedPaletizer=0,timePaletizer=0;
 var actualPaletizer=0,statePaletizer=0;
 var Barcode,secBarcode=0;
-var BarcodeLabel,secBarcodeLabel=0,eanGlobal= '0', registerOutput = 0, itfOuterGlobal = '0';
+var BarcodeLabel,secBarcodeLabel=0,eanGlobal= '0', registerOutput = 11, itfOuterGlobal = '0';
 var secEOL=0,secPubNub=0;
 var publishConfig;
 
