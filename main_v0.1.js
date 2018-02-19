@@ -1029,35 +1029,8 @@ var DoRead = function (){
           secEOL++;
           //EOL --------------------------------------------------------------------------------------------------------------------
     });//END Client Read
-    setTimeout(function() {
-    	mongoClient.connect('mongodb://localhost:27017',function(err, clientdb) {
-    	if (err) throw err
-    	var db = clientdb.db('BarcodeReaderQuality')
-    		setInterval( function () {
-    			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
-    				if (err) throw err
-    				let expectedContent = resp
-    					db.collection('actualData').findOne({},function(err,resp){
-    						let isValid = match(itfOuterGlobal, expectedContent), state
-    						if(isValid){
-    							registerOutput = 11
-    							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
-    							db.collection('actualData').updateOne({},query, function(err, succ){null})
-    						}
-    						else if (!resp.flag && !isValid){
-    								registerOutput = 11
-    								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
-    								db.collection('actualData').updateOne({},query, function(err, succ){null})
-    						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
-    								registerOutput = 200
-                }
-                client.writeSingleRegister(130,registerOutput).then(function(resp) {console.log(resp)})
-    					})
-    			})
-    		},1000)
-    	})
-    },30000)
 };
+
 
 
 
@@ -1171,6 +1144,34 @@ process.on('SIGINT', shutdown);
 
 ///*If client is connect call a function "DoRead"*/
 client.on('connect', function(err) {
+      setTimeout(function() {
+      	mongoClient.connect('mongodb://localhost:27017',function(err, clientdb) {
+      	if (err) throw err
+      	var db = clientdb.db('BarcodeReaderQuality')
+      		setInterval( function () {
+      			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
+      				if (err) throw err
+      				let expectedContent = resp
+      					db.collection('actualData').findOne({},function(err,resp){
+      						let isValid = match(itfOuterGlobal, expectedContent), state
+      						if(isValid){
+      							registerOutput = 11
+      							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
+      							db.collection('actualData').updateOne({},query, function(err, succ){null})
+      						}
+      						else if (!resp.flag && !isValid){
+      								registerOutput = 11
+      								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
+      								db.collection('actualData').updateOne({},query, function(err, succ){null})
+      						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
+      								registerOutput = 200
+                  }
+                  client.writeSingleRegister(130,registerOutput).then(function(resp) {console.log(resp)})
+      					})
+      			})
+      		},1000)
+      	})
+      },30000)
     setInterval(function(){
         DoRead();
     }, 1000);
