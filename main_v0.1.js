@@ -1040,12 +1040,12 @@ var DoRead = function (){
     					db.collection('actualData').findOne({},function(err,resp){
     						let isValid = match(itfOuterGlobal, expectedContent), state
     						if(isValid){
-    							registerOutput = 0
+    							registerOutput = 11
     							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
     							db.collection('actualData').updateOne({},query, function(err, succ){null})
     						}
     						else if (!resp.flag && !isValid){
-    								registerOutput = 0
+    								registerOutput = 11
     								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
     								db.collection('actualData').updateOne({},query, function(err, succ){null})
     						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
