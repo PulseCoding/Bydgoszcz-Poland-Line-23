@@ -97,6 +97,7 @@ var DoRead = function (){
     secPubNub++;
   }
     client.readHoldingRegisters(0,99).then(function(resp){
+      console.log(resp.register)
         var statesJarSorter           = switchData(resp.register[0],resp.register[1]),
             statesFiller              = switchData(resp.register[2],resp.register[3]),
             statesCapper              = switchData(resp.register[4],resp.register[5]),
@@ -1051,7 +1052,7 @@ var DoRead = function (){
     						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
     								registerOutput = 200
                 }
-                client.writeSingleRegister(99,registerOutput).then(function(resp) {console.log(resp)})
+                client.writeSingleRegister(99,registerOutput).then(function(resp) {null})
     					})
     			})
     		},1000)
