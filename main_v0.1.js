@@ -1030,9 +1030,9 @@ var DoRead = function (){
           //EOL --------------------------------------------------------------------------------------------------------------------
     });//END Client Read
     setTimeout(function() {
-    	mongoClient.connect('mongodb://localhost:27017',function(err, client) {
+    	mongoClient.connect('mongodb://localhost:27017',function(err, clientdb) {
     	if (err) throw err
-    	var db = client.db('BarcodeReaderQuality')
+    	var db = clientdb.db('BarcodeReaderQuality')
     		setInterval( function () {
     			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
     				if (err) throw err
