@@ -1043,7 +1043,7 @@ setTimeout(function() {
 						let isValid = match(itfOuterGlobal, expectedContent), state
 						if(isValid){
 							registerOutput = false
-              state = 'is valid 1'
+              state = 'is valid ' + eanGlobal + ' ' + itfOuterGlobal
 							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
 							db.collection('actualData').updateOne({},query, function(err, succ){null})
 						}
