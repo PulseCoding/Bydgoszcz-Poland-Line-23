@@ -1043,20 +1043,16 @@ setTimeout(function() {
 						let isValid = match(itfOuterGlobal, expectedContent), state
 						if(isValid){
 							registerOutput = false
-              state = 'is valid ' + eanGlobal + ' ' + itfOuterGlobal
 							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
 							db.collection('actualData').updateOne({},query, function(err, succ){null})
 						}
 						else if (!resp.flag && !isValid){
 								registerOutput = false
-                state = 'is invalid 2'
 								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
 								db.collection('actualData').updateOne({},query, function(err, succ){null})
 						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
 								registerOutput = true
-                state = 'Setting date'
             }
-            console.log(registerOutput, eanGlobal, itfOuterGlobal, state)
 					})
 			})
 		},1000)
