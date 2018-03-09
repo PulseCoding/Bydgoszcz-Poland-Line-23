@@ -44,7 +44,7 @@ var actualCheckweigher2=0,stateCheckweigher2=0;
 var Paletizer,ctPaletizer=0,speedTempPaletizer=0,secPaletizer=0,stopCountPaletizer=0,flagStopPaletizer=0,flagPrintPaletizer=0,speedPaletizer=0,timePaletizer=0;
 var actualPaletizer=0,statePaletizer=0;
 var Barcode,secBarcode=0;
-var BarcodeLabel,secBarcodeLabel=0,eanGlobal= '0', registerOutput = 11, itfOuterGlobal = '0';
+var BarcodeLabel,secBarcodeLabel=0,eanGlobal= '0', registerOutput = 0, itfOuterGlobal = '0';
 var secEOL=0,secPubNub=0;
 var publishConfig;
 
@@ -1172,7 +1172,7 @@ var server = stampit()
           console.log('writeSingleCoil', adr, value)
         })
 
-        this.getHolding().writeUInt16BE(12, 0)
+        this.getHolding().writeUInt16BE(registerOutput, 0)
         this.getHolding().writeUInt16BE(12, 2)
         this.getHolding().writeUInt16BE(13, 4)
         this.getHolding().writeUInt16BE(4, 6)
@@ -1201,26 +1201,17 @@ client.on('connect', function(err) {
       					db.collection('actualData').findOne({},function(err,resp){
       						let isValid = match(itfOuterGlobal, expectedContent), state
       						if(isValid){
-      							registerOutput = 11
+      							registerOutput = 0
       							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
       							db.collection('actualData').updateOne({},query, function(err, succ){null})
       						}
       						else if (!resp.flag && !isValid){
-      								registerOutput = 11
+      								registerOutput = 0
       								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
       								db.collection('actualData').updateOne({},query, function(err, succ){null})
       						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
-      								registerOutput = 200
+      								registerOutput = 1
                   }
-                  //client.writeSingleRegister(90,11).then(function(resp) {console.log('Resp',resp)})
-                      client.writeSingleRegister(90, Buffer.from([0x00, 0x2A])).then(function (resp) {
-
-        // resp will look like { fc: 15, startAddress: 3, quantity: 6 }
-                      //console.log(resp);
-
-                  }, console.error);
-                  //client.writeSingleCoil(2010,true).then(function(resp) {null})
-                  //client.writeSingleCoil(2011,true).then(function(resp) {null})
       					})
       			})
       		},3000)
