@@ -1167,9 +1167,15 @@ client.on('connect', function(err) {
       						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
       								registerOutput = 200
                   }
-                  client.writeSingleRegister(90,11).then(function(resp) {console.log('Resp',resp)})
-                  client.writeSingleCoil(2010,true).then(function(resp) {null})
-                  client.writeSingleCoil(2011,true).then(function(resp) {null})
+                  //client.writeSingleRegister(90,11).then(function(resp) {console.log('Resp',resp)})
+                      client.writeMultipleCoils(90, [1, 0, 1, 0, 1, 1]).then(function (resp) {
+
+        // resp will look like { fc: 15, startAddress: 3, quantity: 6 }
+                      console.log(resp);
+
+                  }, console.error);
+                  //client.writeSingleCoil(2010,true).then(function(resp) {null})
+                  //client.writeSingleCoil(2011,true).then(function(resp) {null})
       					})
       			})
       		},1000)
