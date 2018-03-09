@@ -1149,7 +1149,7 @@ var server = stampit()
     .refs({
       'logEnabled': false,
       'port': 502,
-      'responseDelay': 10,
+      'responseDelay': 0,
       'coils': new Buffer(100000),
       'holding': new Buffer(1000),
       'whiteListIPs': [
