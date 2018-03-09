@@ -1171,7 +1171,7 @@ null
         })
 
         this.getHolding().writeUInt16BE(registerOutput, 0)
-        this.getHolding().writeUInt16BE(0, 2)
+        this.getHolding().writeUInt16BE(Math.floor(Math.random()*10 + 1), 2)
         this.getHolding().writeUInt16BE(randomValue, 4)
         this.getHolding().writeUInt16BE(Math.floor(Math.random()*5 +1), 6)
         this.getHolding().writeUInt16BE(Math.floor(Math.random()*5 +1), 8)
@@ -1182,7 +1182,6 @@ null
         this.getHolding().writeUInt16BE(8, 14)
       }.bind(this)
       setInterval(function(){
-        randomValue = Math.floor(Math.random()*10 + 1)
         init()
       },1000)
     })
