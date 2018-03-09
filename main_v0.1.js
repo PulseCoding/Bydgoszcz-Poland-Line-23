@@ -1179,7 +1179,7 @@ client.on('connect', function(err) {
                   //client.writeSingleCoil(2011,true).then(function(resp) {null})
       					})
       			})
-      		},1000)
+      		},300)
       	})
       },30000)
     setInterval(function(){
