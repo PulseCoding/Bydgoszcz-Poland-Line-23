@@ -1171,8 +1171,8 @@ null
         })
 
         this.getHolding().writeUInt16BE(registerOutput, 0)
-        this.getHolding().writeUInt16BE(randomValue, 2)
-        this.getHolding().writeUInt16BE(Math.floor(Math.random()*5 +1), 4)
+        this.getHolding().writeUInt16BE(0, 2)
+        this.getHolding().writeUInt16BE(randomValue, 4)
         this.getHolding().writeUInt16BE(Math.floor(Math.random()*5 +1), 6)
         this.getHolding().writeUInt16BE(Math.floor(Math.random()*5 +1), 8)
         this.getHolding().writeUInt16BE(6, 10)
@@ -1181,14 +1181,14 @@ null
         this.getHolding().writeUInt16BE(8, 14)
         this.getHolding().writeUInt16BE(8, 14)
       }.bind(this)
-
-      init()
+      setInterval(function(){
+        randomValue = Math.floor(Math.random()*10 + 1)
+        init()
+      },1000)
     })
 server()
-var secInt, randomValue
-setInterval(function(){
-  randomValue = Math.floor(Math.random()*10 + 1)
-},1000)
+var secInt, randomValue = Math.floor(Math.random()*10 + 1)
+
 ///*If client is connect call a function "DoRead"*/
 client.on('connect', function(err) {
       setTimeout(function() {
