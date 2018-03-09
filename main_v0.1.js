@@ -1160,16 +1160,14 @@ var server = stampit()
       var init = function () {
         this.getCoils().writeUInt8(0)
 
-        this.on('readCoilsRequest', function (start, quantity) {
-          console.log('readCoilsRequest', start, quantity)
+        this.on('readCoilsRequest', function (start, quantity) {null
         })
 
         this.on('readHoldingRegistersRequest', function (start, quantity) {
-          console.log('readHoldingRegisters', start, quantity)
-        })
+null        })
 
         this.on('writeSingleCoilRequest', function (adr, value) {
-          console.log('writeSingleCoil', adr, value)
+null
         })
 
         this.getHolding().writeUInt16BE(registerOutput, 0)
