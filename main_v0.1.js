@@ -16,15 +16,7 @@ var client = modbus.client.tcp.complete({
     'reconnectTimeout': 30000,
     'unitId':1
 }).connect();
-var client2 = modbus.client.tcp.complete({
-    'host': "192.168.20.21",
-    'port': 502,
-    'autoReconnect': true,
-    'timeout': 60000,
-    'logEnabled'    : true,
-    'reconnectTimeout': 30000,
-    'unitId' : 2
-}).connect();
+
 var intId,timeStop=40,flagONS1=0,flagONS2=0,flagONS3=0,flagONS4=0,flagONS5=0,flagONS6=0,flagONS7=0,flagONS8=0,flagONS9=0,flagONS10=0,flagONS11=0,flagONS12=0;
 var JarSorter,ctJarSorter=0,speedTempJarSorter=0,secJarSorter=0,stopCountJarSorter=0,flagStopJarSorter=0,flagPrintJarSorter=0,speedJarSorter=0,timeJarSorter=0;
 var actualJarSorter=0,stateJarSorter=0;
@@ -1150,7 +1142,10 @@ var shutdown = function () {
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
-client2.on('connect', function(err) {
+
+
+///*If client is connect call a function "DoRead"*/
+client.on('connect', function(err) {
       setTimeout(function() {
       	mongoClient.connect('mongodb://localhost:27017',function(err, clientdb) {
       	if (err) throw err
@@ -1174,7 +1169,7 @@ client2.on('connect', function(err) {
       								registerOutput = 200
                   }
                   //client.writeSingleRegister(90,11).then(function(resp) {console.log('Resp',resp)})
-                      client2.writeSingleRegister(90, Buffer.from([0x00, 0x2A])).then(function (resp) {
+                      client.writeSingleRegister(90, Buffer.from([0x00, 0x2A])).then(function (resp) {
 
         // resp will look like { fc: 15, startAddress: 3, quantity: 6 }
                       console.log(resp);
@@ -1187,46 +1182,6 @@ client2.on('connect', function(err) {
       		},1000)
       	})
       },30000)
-});
-
-///*If client is connect call a function "DoRead"*/
-client.on('connect', function(err) {
-  /*    setTimeout(function() {
-      	mongoClient.connect('mongodb://localhost:27017',function(err, clientdb) {
-      	if (err) throw err
-      	var db = clientdb.db('BarcodeReaderQuality')
-      		setInterval( function () {
-      			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
-      				if (err) throw err
-      				let expectedContent = resp
-      					db.collection('actualData').findOne({},function(err,resp){
-      						let isValid = match(itfOuterGlobal, expectedContent), state
-      						if(isValid){
-      							registerOutput = 11
-      							let query = {$set: {date: 0, flag : false, du: eanGlobal, itfOuter: itfOuterGlobal} }
-      							db.collection('actualData').updateOne({},query, function(err, succ){null})
-      						}
-      						else if (!resp.flag && !isValid){
-      								registerOutput = 11
-      								let query = {$set: {date: Date.now(), flag : true, du: eanGlobal, itfOuter: itfOuterGlobal} }
-      								db.collection('actualData').updateOne({},query, function(err, succ){null})
-      						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
-      								registerOutput = 200
-                  }
-                  //client.writeSingleRegister(90,11).then(function(resp) {console.log('Resp',resp)})
-                      client.writeMultipleRegisters(90, [1, 0, 1, 0, 1, 1]).then(function (resp) {
-
-        // resp will look like { fc: 15, startAddress: 3, quantity: 6 }
-                      console.log(resp);
-
-                  }, console.error);
-                  //client.writeSingleCoil(2010,true).then(function(resp) {null})
-                  //client.writeSingleCoil(2011,true).then(function(resp) {null})
-      					})
-      			})
-      		},1000)
-      	})
-      },30000)*/
     setInterval(function(){
         DoRead();
     }, 1000);
