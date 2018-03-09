@@ -1168,7 +1168,7 @@ client.on('connect', function(err) {
       								registerOutput = 200
                   }
                   //client.writeSingleRegister(90,11).then(function(resp) {console.log('Resp',resp)})
-                      client.writeMultipleCoils(90, [1, 0, 1, 0, 1, 1]).then(function (resp) {
+                      client.writeMultipleRegisters(90, [1, 0, 1, 0, 1, 1]).then(function (resp) {
 
         // resp will look like { fc: 15, startAddress: 3, quantity: 6 }
                       console.log(resp);
