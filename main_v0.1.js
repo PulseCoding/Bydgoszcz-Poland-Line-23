@@ -1138,19 +1138,21 @@ var shutdown = function () {
     ///Use function STOP and close connection
     stop();
     client.close();
+    clearInterval(secInt)
+    process.exit(0)
 };
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
-
+var secInt
 ///*If client is connect call a function "DoRead"*/
 client.on('connect', function(err) {
       setTimeout(function() {
       	mongoClient.connect('mongodb://localhost:27017',function(err, clientdb) {
       	if (err) throw err
       	var db = clientdb.db('BarcodeReaderQuality')
-      		setInterval( function () {
+      		secInt = setInterval( function () {
       			db.collection('MasterData').find({'ean': eanGlobal}).toArray(function(err, resp) {
       				if (err) throw err
       				let expectedContent = resp
