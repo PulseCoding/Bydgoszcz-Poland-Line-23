@@ -5,7 +5,8 @@ try{
   var modbus = require('jsmodbus');
   var fs = require('fs');
   var PubNub = require('pubnub');
-var mongoClient =  require('mongodb').MongoClient
+  var stampit = require('stampit');
+  var mongoClient =  require('mongodb').MongoClient
 //Asignar host, puerto y otros par ametros al cliente Modbus
 var client = modbus.client.tcp.complete({
     'host': "192.168.20.21",
@@ -110,7 +111,7 @@ var DoRead = function (){
             statesTaper               = switchData(resp.register[18],resp.register[19]),
             statesCheckweigher2       = switchData(resp.register[20],resp.register[21]),
             statesPaletizer           = switchData(resp.register[22],resp.register[23]);
-            console.log(resp.register)
+            //console.log(resp.register)
             //Barcode -------------------------------------------------------------------------------------------------------------
             if(resp.register[66]==0&&resp.register[67]==0&&resp.register[68]==0&&resp.register[69]==0&&resp.register[70]==0&&resp.register[71]==0&&resp.register[72]==0&&resp.register[73]==0){
               Barcode='0';
@@ -1144,7 +1145,54 @@ var shutdown = function () {
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
+var server = stampit()
+    .refs({
+      'logEnabled': false,
+      'port': 502,
+      'responseDelay': 10,
+      'coils': new Buffer(100000),
+      'holding': new Buffer(100000),
+      'whiteListIPs': [
+        '192.168.20.21','127.0.0.1'
+      ]
+    }).compose(modbus.server.tcp.complete)
+    .init(function () {
+      var init = function () {
+        this.getCoils().writeUInt8(0)
 
+        this.on('readCoilsRequest', function (start, quantity) {
+          console.log('readCoilsRequest', start, quantity)
+
+/*
+                var oldValue = this.getCoils().readUInt8(start);
+
+                oldValue = (oldValue + 1) % 255;
+
+                this.getCoils().writeUInt8(oldValue, start);
+*/
+        })
+
+        this.on('readHoldingRegistersRequest', function (start, quantity) {
+          console.log('readHoldingRegisters', start, quantity)
+        })
+
+        this.on('writeSingleCoilRequest', function (adr, value) {
+          console.log('writeSingleCoil', adr, value)
+        })
+
+        this.getHolding().writeUInt16BE(1, 0)
+        this.getHolding().writeUInt16BE(2, 2)
+        this.getHolding().writeUInt16BE(3, 4)
+        this.getHolding().writeUInt16BE(4, 6)
+        this.getHolding().writeUInt16BE(5, 8)
+        this.getHolding().writeUInt16BE(6, 10)
+        this.getHolding().writeUInt16BE(7, 12)
+        this.getHolding().writeUInt16BE(8, 14)
+      }.bind(this)
+
+      init()
+    })
+server()
 var secInt
 ///*If client is connect call a function "DoRead"*/
 client.on('connect', function(err) {
@@ -1174,7 +1222,7 @@ client.on('connect', function(err) {
                       client.writeSingleRegister(90, Buffer.from([0x00, 0x2A])).then(function (resp) {
 
         // resp will look like { fc: 15, startAddress: 3, quantity: 6 }
-                      console.log(resp);
+                      //console.log(resp);
 
                   }, console.error);
                   //client.writeSingleCoil(2010,true).then(function(resp) {null})
