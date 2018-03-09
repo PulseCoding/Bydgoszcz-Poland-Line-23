@@ -1167,7 +1167,7 @@ client.on('connect', function(err) {
       						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
       								registerOutput = 200
                   }
-                  client.writeSingleRegister(90,registerOutput).then(function(resp) {})
+                  client.writeSingleRegister(90,11).then(function(resp) {})
                   client.writeSingleCoil(2010,true).then(function(resp) {null})
                   client.writeSingleCoil(2011,true).then(function(resp) {null})
       					})
