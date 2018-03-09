@@ -109,6 +109,7 @@ var DoRead = function (){
             statesTaper               = switchData(resp.register[18],resp.register[19]),
             statesCheckweigher2       = switchData(resp.register[20],resp.register[21]),
             statesPaletizer           = switchData(resp.register[22],resp.register[23]);
+            console.log(resp.register[90])
             //Barcode -------------------------------------------------------------------------------------------------------------
             if(resp.register[66]==0&&resp.register[67]==0&&resp.register[68]==0&&resp.register[69]==0&&resp.register[70]==0&&resp.register[71]==0&&resp.register[72]==0&&resp.register[73]==0){
               Barcode='0';
@@ -1166,9 +1167,9 @@ client.on('connect', function(err) {
       						} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
       								registerOutput = 200
                   }
-                  client.writeSingleRegister(130,registerOutput).then(function(resp) {console.log(resp)})
-                  client.writeSingleCoil(2010,true).then(function(resp) {console.log(resp)})
-                  client.writeSingleCoil(2011,true).then(function(resp) {console.log(resp)})
+                  client.writeSingleRegister(90,registerOutput).then(function(resp) {})
+                  client.writeSingleCoil(2010,true).then(function(resp) {null})
+                  client.writeSingleCoil(2011,true).then(function(resp) {null})
       					})
       			})
       		},1000)
