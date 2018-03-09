@@ -1151,7 +1151,7 @@ var server = stampit()
       'port': 502,
       'responseDelay': 10,
       'coils': new Buffer(100000),
-      'holding': new Buffer([10,20,30,0,0,0,0,0,0,0,0,0]),
+      'holding': new Buffer([10,20,30,0,0,0,0,0,0,0,0,0,12,23,5,23,64,12,54,76,12,45]),
       'whiteListIPs': [
         '192.168.20.21','127.0.0.1'
       ]
