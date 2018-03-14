@@ -1313,13 +1313,12 @@ try {
 						'ean': eanGlobal
 					}).toArray(function(err, resp) {
 						if (err) throw err
-						var expectedContent = resp, isValid
+						var expectedContent = resp
 						if (resp == null) {
 							registerOutput = 2
 						} else {
 							db.collection('actualData').findOne({}, function(err, resp) {
-								 isValid = match(itfOuterGlobal, expectedContent)
-								if (isValid) {
+								if (match(itfOuterGlobal, expectedContent)) {
 									registerOutput = 1
 									let query = {
 										$set: {
@@ -1332,7 +1331,7 @@ try {
 									db.collection('actualData').updateOne({}, query, function(err, succ) {
 										null
 									})
-								} else if (!resp.flag && !isValid) {
+								} else if (!resp.flag && !match(itfOuterGlobal, expectedContent)) {
 									registerOutput = 1
 									let query = {
 										$set: {
