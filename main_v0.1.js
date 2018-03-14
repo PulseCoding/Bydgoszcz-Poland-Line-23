@@ -1350,7 +1350,7 @@ try {
 								}
 							})
 						}
-            console.log(registerOutput,isValid, itfOuterGlobal, eanGlobal)
+            console.log(registerOutput,match(itfOuterGlobal, expectedContent), itfOuterGlobal, eanGlobal)
 					})
 				}, 3000)
 			})
