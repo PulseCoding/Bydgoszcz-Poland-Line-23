@@ -1318,8 +1318,7 @@ try {
 							registerOutput = 2
 						} else {
 							db.collection('actualData').findOne({}, function(err, resp) {
-								 isValid = match(itfOuterGlobal, expectedContent),
-									state
+								 isValid = match(itfOuterGlobal, expectedContent)
 								if (isValid) {
 									registerOutput = 1
 									let query = {
