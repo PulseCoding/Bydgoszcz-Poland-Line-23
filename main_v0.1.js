@@ -1344,8 +1344,10 @@ try {
 									db.collection('actualData').updateOne({}, query, function(err, succ) {
 										null
 									})
-								} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
+								} else if (resp.flag && resp.date < Date.now() - 5 * 60000 && Paletizer.ST == 1) {
 									registerOutput = 0
+								} else if (resp.flag && resp.date < Date.now() - 5 * 60000) {
+									registerOutput = 3
 								}
 							})
 						}
