@@ -1313,12 +1313,12 @@ try {
 						'ean': eanGlobal
 					}).toArray(function(err, resp) {
 						if (err) throw err
-						let expectedContent = resp
+						let expectedContent = resp, isValid
 						if (resp == null) {
 							registerOutput = 2
 						} else {
 							db.collection('actualData').findOne({}, function(err, resp) {
-								let isValid = match(itfOuterGlobal, expectedContent),
+								 isValid = match(itfOuterGlobal, expectedContent),
 									state
 								if (isValid) {
 									registerOutput = 1
