@@ -1313,7 +1313,7 @@ try {
 						'ean': eanGlobal
 					}).toArray(function(err, resp) {
 						if (err) throw err
-						let expectedContent = resp, isValid
+						var expectedContent = resp, isValid
 						if (resp == null) {
 							registerOutput = 2
 						} else {
