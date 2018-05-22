@@ -1,7 +1,6 @@
 // ----------------------------------------------------//
 // Se crean las instancias de las librerias a utilizar //
 // ----------------------------------------------------//
-try {
 	var modbus = require('jsmodbus');
 	var fs = require('fs');
 	var PubNub = require('pubnub');
@@ -1485,7 +1484,3 @@ try {
 		fs.appendFileSync("error.log", "ID 2: " + Date.now() + ": " + 'Client closed, stopping interval.' + "\n");
 		stop();
 	});
-
-} catch (err) {
-	fs.appendFileSync("error.log", "ID 3: " + Date.now() + ": " + err + "\n");
-}
