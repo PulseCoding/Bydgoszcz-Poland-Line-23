@@ -151,7 +151,7 @@ try {
 		timePaletizer = 0;
 	var actualPaletizer = 0,
 		statePaletizer = 0;
-	var Barcode, secBarcode = 0;
+	var Barcode = '', secBarcode = 0;
 	var heal = (function() {
 		try {
 			JSON.parse(fs.readFileSync('savedData.json'))
@@ -163,7 +163,7 @@ try {
 		}
 	})()
 	var savedValues = JSON.parse(fs.readFileSync('savedData.json'))
-	var BarcodeLabel,
+	var BarcodeLabel = '',
 		SUPDATAean = savedValues.ean,
 		SUPsaved = true,
 		registerOutput = 1,
