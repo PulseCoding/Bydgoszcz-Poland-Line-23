@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="./assets/css/material.red-orange.min.css"/>
+	<link rel="stylesheet" href="./assets/css/jquery.dataTables.min.css" />
+	<title>Smart updator</title>
+	<link rel="stylesheet" href="./assets/css/responsive.dataTables.min.css" />
+	<link rel="icon" href="./assets/img/Logo SUP.ico" type="image/x-icon" />
+	<style>
+		.mdl-textfield {
+			width: 80%;
+		}
+
+		#fileCSV {
+			display: none
+		}
+
+		body {
+			background-color: #eee;
+		}
+
+		.selected {
+			background-color: rgba(200, 200, 200, 0.4);
+		}
+		.nav-tabs.nav-link {
+			border: none;
+		}
+	</style>
+	<script>
+		var masterDataRequested = false;
+	</script>
+</head>
+
+<body>
+	<div class="container-fluid">
+		<div class="row align-items-top" style="height:90px;">
+			<div class="container-fluid" style="background-color:#f44336">
+				<div class="row justify-content-md-center">
+					<div class="col-12 py-1 text-center text-light">
+						<img class="img-fluid" style="height:80px;" src="./assets/img/SS3 bla.png"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row align-items-top" style="height:80vh;">
+			<ul class="nav nav-tabs" style="width:100%;">
+				<li class="nav-item">
+					<a class="nav-link active" data-toggle="tab" href="#home">BARCODE SETTER</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link superUser" data-toggle="tab" href="#menu1">MASTER DATA REPLACER</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link superUser" data-toggle="tab" onclick="getMasterData();" href="#menu2">MASTER DATA EDITOR</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" data-toggle="tab" onclick="signOut();" href="#">LOGOUT</a>
+				</li>
+			</ul>
+			<div class="container">
+				<div class="row justify-content-md-center">
+					<div class="col-12 clearfix" id="currentContent">
+						<!-- Tab panes -->
+						<div class="tab-content">
+							<div class="tab-pane active container mt-2" id="home">
+								<form action="javascript:void(0)" onsubmit="barcodeSetToArk();">
+									<div class="form-group">
+										<label for="exampleInputEmail1">Barcode value [EAN]</label>
+										<input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" min=0 placeholder="Enter current ean barcode" required autofocus>
+										<small id="emailHelp" class="form-text text-muted">This will set the barcode into PULSE until a new set or barcode successful read.</small>
+									</div>
+									<div class="form-group">
+										<label for="outerBox">Barcode value [OUTER]</label>
+										<input type="number" class="form-control" id="outerBox" aria-describedby="outerBoxSmall" min=0 placeholder="Enter current outer barcode" required>
+										<small id="outerBoxSmall" class="form-text text-muted">This will set the barcode into PULSE until a new set or barcode successful read.</small>
+									</div>
+									<button type="submit" class="float-right my-2 mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+										Set
+									</button>
+								</form>
+
+							</div>
+							<div class="tab-pane container" id="menu1">
+								<div class="row mt-2">
+									<div class="col-12">
+										<label>Master data selector</label>
+										<div class="row" style="border: 2px ridge #cecece;">
+											<div class="col-6 text-center">
+												<label class="py-4">Select your file here</label>
+											</div>
+											<div class="col-6 text-center">
+												<input type="file" id="fileCSV" accept=".csv">
+												<label id="file_uploadID" for="fileCSV" class="mx-3 my-3 mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+													<i class="material-icons">file_upload</i>
+												</label>
+												<div class="mdl-tooltip" data-mdl-for="file_uploadID">
+													Upload <strong>MasterData.csv</strong>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-3 offset-9 text-center">
+										<button type="submit" onclick="updateMasterData();" class="float-right my-3 mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+											Replace
+										</button>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane container" id="menu2">
+								<div class="row">
+									<div class="col-lg-9 col-xs-12" id="tableStarted">
+										<div class="container" style="height:100%;">
+											<div class="row align-items-center" style="height:100%;">
+												<div class="row mx-auto">
+													<div class="col-12">
+														<div class="mdl-spinner mdl-js-spinner is-active" style="height:50px;width:50px;"></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-2 col-xs-12">
+										<div class="container" style="height:100%;">
+											<div class="row align-items-center" style="height:100%;">
+												<div class="row mx-auto">
+													<div class="col-12">
+														<button id="button" class="my-3 mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+															<i class="material-icons">delete</i>
+														</button>
+														<div class="mdl-tooltip" data-mdl-for="button">
+															Delete <strong>selected </strong> row.
+														</div>
+													</div>
+												</div>
+												<div class="row mx-auto">
+													<div class="col-12">
+														<button id="addRowMD" class="my-3 mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+															<i class="material-icons">input</i>
+														</button>
+														<div class="mdl-tooltip" data-mdl-for="addRowMD">
+															<strong>Add row</strong> at the beginning of MD.
+														</div>
+													</div>
+												</div>
+												<div class="row mx-auto">
+													<div class="col-12">
+														<button id="uploadMD" class="my-3 mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+															<i class="material-icons">done</i>
+														</button>
+														<div class="mdl-tooltip" data-mdl-for="uploadMD">
+															<strong>Upload to DataBase</strong>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="fixed-bottom">
+			<img class="img-fluid m-4 float-right" style="height:90px;" src="./assets/img/Logo SUP.png"/>
+		</div>
+		<button id="demo-show-toast" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+		<div id="demo-toast-example" class="mdl-js-snackbar mdl-snackbar bg-success">
+			<div class="mdl-snackbar__text"></div>
+			<button class="mdl-snackbar__action" type="button"></button>
+		</div>
+		<button id="demo-show-loaded" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+		<div id="demo-toast-MDloaded" class="mdl-js-snackbar mdl-snackbar bg-info">
+			<div class="mdl-snackbar__text"></div>
+			<button class="mdl-snackbar__action" type="button"></button>
+		</div>
+		<button id="demo-show-mdUpdated" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+		<div id="demo-toast-MDupdated" class="mdl-js-snackbar mdl-snackbar bg-success">
+			<div class="mdl-snackbar__text"></div>
+			<button class="mdl-snackbar__action" type="button"></button>
+		</div>
+		<button id="demo-show-mdUpdatedError" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+		<div id="demo-toast-MDupdatedError" class="mdl-js-snackbar mdl-snackbar bg-danger">
+			<div class="mdl-snackbar__text"></div>
+			<button class="mdl-snackbar__action" type="button"></button>
+		</div>
+		<button id="demo-show-fillField" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+		<div id="demo-toast-fillField" class="mdl-js-snackbar mdl-snackbar bg-danger">
+			<div class="mdl-snackbar__text"></div>
+			<button class="mdl-snackbar__action" type="button"></button>
+		</div>
+		<button id="demo-show-pubnubError" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+		<div id="demo-toast-pubnubError" class="mdl-js-snackbar mdl-snackbar bg-danger">
+			<div class="mdl-snackbar__text"></div>
+			<button class="mdl-snackbar__action" type="button"></button>
+		</div>
+		<button id="demo-show-wontSetBarcode" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+		<div id="demo-toast-wontSetBarcode" class="mdl-js-snackbar mdl-snackbar bg-danger">
+			<div class="mdl-snackbar__text"></div>
+			<button class="mdl-snackbar__action" type="button"></button>
+		</div>
+		<script>
+			(function() {
+				'use strict';
+				window['counter'] = 0;
+				var snackbarContainer = document.querySelector('#demo-toast-example');
+				var showToastButton = document.querySelector('#demo-show-toast');
+				showToastButton.addEventListener('click', function() {
+					'use strict';
+					var data = {
+						message: 'Barcode setted successfuly at ARK!'
+					};
+					snackbarContainer.MaterialSnackbar.showSnackbar(data);
+				});
+			}());
+			(function() {
+				'use strict';
+				window['counter'] = 0;
+				var snackbarContainer = document.querySelector('#demo-toast-MDloaded');
+				var showToastButton = document.querySelector('#demo-show-loaded');
+				showToastButton.addEventListener('click', function() {
+					'use strict';
+					var data = {
+						message: 'Master data ready to be uploaded!'
+					};
+					snackbarContainer.MaterialSnackbar.showSnackbar(data);
+				});
+			}());
+			(function() {
+				'use strict';
+				window['counter'] = 0;
+				var snackbarContainer = document.querySelector('#demo-toast-MDupdated');
+				var showToastButton = document.querySelector('#demo-show-mdUpdated');
+				showToastButton.addEventListener('click', function() {
+					'use strict';
+					var data = {
+						message: 'Master data successfuly updated!'
+					};
+					snackbarContainer.MaterialSnackbar.showSnackbar(data);
+				});
+			}());
+			(function() {
+				'use strict';
+				window['counter'] = 0;
+				var snackbarContainer = document.querySelector('#demo-toast-MDUpdatedError');
+				var showToastButton = document.querySelector('#demo-show-mdUpdatedError');
+				showToastButton.addEventListener('click', function() {
+					'use strict';
+					var data = {
+						message: 'Master data update had errors!'
+					};
+					snackbarContainer.MaterialSnackbar.showSnackbar(data);
+				});
+			}());
+			(function() {
+				'use strict';
+				window['counter'] = 0;
+				var snackbarContainer = document.querySelector('#demo-toast-fillField');
+				var showToastButton = document.querySelector('#demo-show-fillField');
+				showToastButton.addEventListener('click', function() {
+					'use strict';
+					var data = {
+						message: 'Fill all the fields!'
+					};
+					snackbarContainer.MaterialSnackbar.showSnackbar(data);
+				});
+			}());
+			(function() {
+				'use strict';
+				window['counter'] = 0;
+				var snackbarContainer = document.querySelector('#demo-toast-pubnubError');
+				var showToastButton = document.querySelector('#demo-show-pubnubError');
+				showToastButton.addEventListener('click', function() {
+					'use strict';
+					var data = {
+						message: 'Internet conection not stable!'
+					};
+					snackbarContainer.MaterialSnackbar.showSnackbar(data);
+				});
+			}());
+			(function() {
+				'use strict';
+				window['counter'] = 0;
+				var snackbarContainer = document.querySelector('#demo-toast-wontSetBarcode');
+				var showToastButton = document.querySelector('#demo-show-wontSetBarcode');
+				showToastButton.addEventListener('click', function() {
+					'use strict';
+					var data = {
+						message: 'Barcode value not registered in Master Data'
+					};
+					snackbarContainer.MaterialSnackbar.showSnackbar(data);
+				});
+			}());
+		</script>
+		<script src="./assets/js/jquery.min.js"></script>
+		<script src="./assets/js/bootstrap.min.js"></script>
+		<script src="./assets/js/material.min.js"></script>
+		<script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.20.2.js"></script>
+		<script src="./assets/js/jquery.dataTables.min.js"></script>
+		<script src="./assets/js/dataTables.material.min.js"></script>
+		<script src="./assets/js/fnAddDataAndDisplay.js"></script>
+		<script src="./assets/js/dataTables.responsive.min.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/4.6.2/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase-firestore.js"></script>
+		<script>
+			var config = {
+				apiKey: "AIzaSyDgzp81gXeOvQOSExfxmfS5mSCQLOST-PI",
+				authDomain: "byd-barcode-q-md.firebaseapp.com",
+				databaseURL: "https://byd-barcode-q-md.firebaseio.com",
+				projectId: "byd-barcode-q-md",
+				storageBucket: "byd-barcode-q-md.appspot.com",
+				messagingSenderId: "1078460183287"
+			};
+			firebase.initializeApp(config);
+		</script>
+		<script src="./assets/scripts/contentHandler.js"></script>
+		<script>
+			var level;
+
+			function signOut() {
+				firebase.auth().signOut().then(function() {
+					location.href = "/";
+				}).catch(function(error) {
+
+				});
+			}
+
+			function userViewer() {
+				firebase.auth().onAuthStateChanged(function(user) {
+					if (!user) {
+						location.href = "./";
+					} else {
+						if (user.displayName == 'Operator') {
+							$('.superUser').addClass('disabled')
+						}
+					}
+				});
+			}
+			userViewer();
+		</script>
+</body>
+
+</html>

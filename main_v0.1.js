@@ -152,9 +152,23 @@ try {
 	var actualPaletizer = 0,
 		statePaletizer = 0;
 	var Barcode, secBarcode = 0;
-	var BarcodeLabel, secBarcodeLabel = 0,
-		eanGlobal = '0',
+	var heal = (function() {
+		try {
+			JSON.parse(fs.readFileSync('savedData.json'))
+		} catch (err) {
+			fs.writeFileSync('savedData.json', JSON.stringify({
+				ean: "0",
+				outer: "0"
+			}))
+		}
+	})()
+	var savedValues = JSON.parse(fs.readFileSync('savedData.json'))
+	var BarcodeLabel,
+		SUPDATAean = savedValues.ean,
+		SUPsaved = true,
 		registerOutput = 1,
+		SUPDATAouter = savedValues.outer,
+		eanGlobal = '0',
 		itfOuterGlobal = '0';
 	var secEOL = 0,
 		secPubNub = 0;
@@ -172,6 +186,78 @@ try {
 		subscribeKey: "sub-c-206bed96-8c16-11e7-9760-3a607be72b06",
 		uuid: "L23"
 	});
+	var admin = require("firebase-admin");
+	var serviceAccount = require("./data/byd-barcode-q-md-firebase-adminsdk-la3rl-44e58f0695.json");
+	admin.initializeApp({
+		credential: admin.credential.cert(serviceAccount),
+		databaseURL: "https://byd-barcode-q-md.firebaseio.com"
+	});
+	var db = admin.firestore()
+	var masterData
+	db.collection('masterData').doc('line23').get().then(doc => {
+		if (doc) {
+			masterData = doc.data().content
+			console.log('Saved')
+		}
+	}).catch(err => {
+		console.log('Error occurred ' + err)
+	})
+	var pubnubVariable = new PubNub({
+		publishKey: 'pub-c-00bd1ac0-2eb7-4a70-9aeb-335c72b1ced5',
+		subscribeKey: 'sub-c-4dd746bc-287a-11e8-9322-6e836ba663ef',
+		uuid: 'barcodeSetToArkToArk',
+		ssl: true
+	})
+	pubnubVariable.subscribe({
+		channels: ['barcodeSetter']
+	})
+
+	pubnubVariable.addListener({
+		status: function(statusEvent) {
+			if (statusEvent.category === "PNConnectedCategory") {
+				null
+			}
+		},
+		message: function(message) {
+			if (message.message.type == 'barcodeSetting') {
+				if (findBarcode(message.message.barcodeInner, message.message.barcodeOuter)) {
+					fs.writeFileSync('savedData.json', JSON.stringify({
+						ean: message.message.barcodeInner,
+						outer: message.message.barcodeOuter
+					}))
+					SUPDATAean = message.message.barcodeInner
+					SUPDATAouter = message.message.barcodeOuter
+					SUPsaved = true
+					var publishConfig = {
+						channel: 'barcodeSetter',
+						message: {
+							type: 'barcodeSetted',
+							status: 'received'
+						}
+					};
+					pubnubVariable.publish(publishConfig, function(status, response) {});
+				} else {
+					var publishConfig = {
+						channel: 'barcodeSetter',
+						message: {
+							type: 'barcodeSetted',
+							status: 'notExistent'
+						}
+					};
+					pubnubVariable.publish(publishConfig, function(status, response) {});
+				}
+			}
+		},
+		presence: function(presenceEvent) {}
+	})
+
+	function findBarcode(ean, outer) {
+		for (var i = 0, k = masterData.length; i < k; i++) {
+			if (ean == masterData[i].ean && outer == masterData[i].itfOuter)
+				return true
+		}
+		return false
+	}
 
 	function senderData() {
 		pubnub.publish(publishConfig, function(status, response) {});
@@ -241,9 +327,31 @@ try {
 			if (isNaN(Barcode)) {
 				Barcode = '0';
 			}
-			itfOuterGlobal = String(Barcode).replace(/[^\d]/g, '')
+			Barcode = Barcode.replace(/\D/g, '')
+			BarcodeLabel = BarcodeLabel.replace(/\D/g, '')
+			if (Barcode == '0') {
+				if (BarcodeLabel == '0') {
+					eanGlobal = SUPDATAean
+					itfOuterGlobal = SUPDATAouter
+				} else {
+					eanGlobal = BarcodeLabel
+					itfOuterGlobal = SUPDATAouter
+				}
+			} else {
+				if (BarcodeLabel == '0') {
+					eanGlobal = SUPDATAean
+					itfOuterGlobal = Barcode
+					SUPsaved = false
+				} else {
+					eanGlobal = BarcodeLabel
+					itfOuterGlobal = SUPDATAouter
+				}
+			}
 			if (secBarcode >= 60 && !isNaN(Barcode)) {
-				writedataBarcode(Barcode, "pol_byd_Barcode_L23.log");
+				if (SUPsaved && Paletizer.ST == 2)
+					writedataBarcode('0', "pol_byd_Barcode_L23.log");
+				else
+					writedataBarcode(itfOuterGlobal, "pol_byd_Barcode_L23.log");
 				secBarcode = 0;
 			}
 			secBarcode++;
@@ -265,12 +373,6 @@ try {
 			if (isNaN(BarcodeLabel)) {
 				BarcodeLabel = '0';
 			}
-			if (BarcodeLabel != eanGlobal)
-				eanGlobal = String(BarcodeLabel).replace(/[^\d]/g, '')
-			if (secBarcodeLabel >= 60 && !isNaN(BarcodeLabel)) {
-				secBarcodeLabel = 0;
-			}
-			secBarcodeLabel++;
 			//Barcode -------------------------------------------------------------------------------------------------------------
 			//JarSorter -------------------------------------------------------------------------------------------------------------
 			ctJarSorter = joinWord(resp.register[25], resp.register[24]);
@@ -1300,12 +1402,24 @@ try {
 			}, 1000)
 		})
 	server()
-	var secInt, randomValue = Math.floor(Math.random() * 10 + 1)
-
-	///*If client is connect call a function "DoRead"*/
+	var secInt, randomValue = Math.floor(Math.random() * 10 + 1), flag = false, dated;
 	client.on('connect', function(err) {
 		setTimeout(function() {
-			mongoClient.connect('mongodb://localhost:27017', function(err, clientdb) {
+			setInterval(function () {
+				var result = result
+				if (result) {
+					dated = Date.now();
+					registerOutput = 1
+					flag = false
+				} else if(!result && !flag) {
+					flag = true
+					registerOutput = 0
+					dated = Date.now()
+				} else if (Date.now() - 5 * 60000 > dated){
+					registerOutput = 3
+				}
+			},1000)
+			/*mongoClient.connect('mongodb://localhost:27017', function(err, clientdb) {
 				if (err) throw err
 				var db = clientdb.db('BarcodeReaderQuality')
 				secInt = setInterval(function() {
@@ -1351,10 +1465,9 @@ try {
 								}
 							})
 						}
-            console.log(registerOutput,match(itfOuterGlobal, expectedContent), itfOuterGlobal, eanGlobal)
 					})
 				}, 3000)
-			})
+			})*/
 		}, 3000)
 		setInterval(function() {
 			DoRead();

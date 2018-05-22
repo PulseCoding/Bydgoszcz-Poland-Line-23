@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Smart updator</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="./assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="./assets/css/material.red-orange.min.css" />
+	<link rel="icon" href="./assets/img/Logo SUP.ico" type="image/x-icon" />
+	<style>
+		.mdl-textfield {
+			width: 100%;
+		}
+
+		body {
+			background-color: #eee;
+		}
+	</style>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="row align-items-top" style="height:90px;">
+			<div class="container-fluid" style="background-color:#f44336">
+				<div class="row justify-content-md-center">
+					<div class="col-12 py-1 text-center text-light">
+						<img class="img-fluid" style="height:80px;" src="./assets/img/SS3 bla.png"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row align-items-center" style="height:625px;">
+			<div class="container">
+				<div class="row justify-content-md-center">
+					<div class="col-lg-6 col-md-8 col-xs-12">
+						<form action="javascript:login();">
+							<div class="form-group">
+								<label for="exampleInputEmail1">Email address</label>
+								<input type="email" class="form-control" id="sample3" aria-describedby="emailHelp" placeholder="Enter email">
+								<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+							</div>
+							<div class="form-group">
+								<label for="exampleInputPassword1">Password</label>
+								<input type="password" class="form-control" id="sample2" placeholder="Password">
+							</div>
+							<button type="submit" class="float-right mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--primary">
+							  Login
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="fixed-bottom">
+		<img class="img-fluid m-4 float-right" style="height:90px;" src="./assets/img/Logo SUP.png"/>
+	</div>
+	<button id="demo-show-noUser" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+	<div id="demo-toast-noUser" class="mdl-js-snackbar mdl-snackbar bg-danger">
+		<div class="mdl-snackbar__text"></div>
+		<button class="mdl-snackbar__action" type="button"></button>
+	</div>
+	<button id="demo-show-wrongPwd" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+	<div id="demo-toast-wrongPwd" class="mdl-js-snackbar mdl-snackbar bg-danger">
+		<div class="mdl-snackbar__text"></div>
+		<button class="mdl-snackbar__action" type="button"></button>
+	</div>
+	<button id="demo-show-noInternet" style="display:none;" class="mdl-button mdl-js-button mdl-button--raised" type="button">Show Toast</button>
+	<div id="demo-toast-noInternet" class="mdl-js-snackbar mdl-snackbar bg-danger">
+		<div class="mdl-snackbar__text"></div>
+		<button class="mdl-snackbar__action" type="button"></button>
+	</div>
+	<script src="./assets/js/jquery.min.js"></script>
+	<script src="./assets/js/material.min.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/4.6.2/firebase-auth.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase-firestore.js"></script>
+	<script>
+		var config = {
+			apiKey: "AIzaSyDgzp81gXeOvQOSExfxmfS5mSCQLOST-PI",
+			authDomain: "byd-barcode-q-md.firebaseapp.com",
+			databaseURL: "https://byd-barcode-q-md.firebaseio.com",
+			projectId: "byd-barcode-q-md",
+			storageBucket: "byd-barcode-q-md.appspot.com",
+			messagingSenderId: "1078460183287"
+		};
+		firebase.initializeApp(config);
+	</script>
+	<script>
+	(function() {
+		'use strict';
+		window['counter'] = 0;
+		var snackbarContainer = document.querySelector('#demo-toast-noUser');
+		var showToastButton = document.querySelector('#demo-show-noUser');
+		showToastButton.addEventListener('click', function() {
+			'use strict';
+			var data = {
+				message: 'User not registered in database!'
+			};
+			snackbarContainer.MaterialSnackbar.showSnackbar(data);
+		});
+	}());
+	(function() {
+		'use strict';
+		window['counter'] = 0;
+		var snackbarContainer = document.querySelector('#demo-toast-wrongPwd');
+		var showToastButton = document.querySelector('#demo-show-wrongPwd');
+		showToastButton.addEventListener('click', function() {
+			'use strict';
+			var data = {
+				message: 'Wrong password!'
+			};
+			snackbarContainer.MaterialSnackbar.showSnackbar(data);
+		});
+	}());
+	(function() {
+		'use strict';
+		window['counter'] = 0;
+		var snackbarContainer = document.querySelector('#demo-toast-noInternet');
+		var showToastButton = document.querySelector('#demo-show-noInternet');
+		showToastButton.addEventListener('click', function() {
+			'use strict';
+			var data = {
+				message: 'No internet connection!'
+			};
+			snackbarContainer.MaterialSnackbar.showSnackbar(data);
+		});
+	}());
+		function login() {
+			var email = document.getElementById('sample3').value;
+			var password = document.getElementById('sample2').value;
+			firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) { // Handle Errors here. var errorCode
+				var errorCode = error.code;
+				var errorMessage = error.message;
+				if (errorCode == 'auth/user-not-found') {
+					$('#demo-show-noUser').click()
+				}
+				if (errorCode == 'auth/wrong-password') {
+					$('#demo-show-wrongPwd').click()
+				}
+				if (errorCode == 'auth/network-request-failed') {
+					$('#demo-show-noInternet').click()
+				}
+			});
+			userViewer();
+		}
+
+		function userViewer() {
+			firebase.auth().onAuthStateChanged(function(user) {
+				if (user) {
+					location.href = "./main.html";
+				}
+			});
+		}
+		userViewer();
+	</script>
+</body>
+
+</html>
