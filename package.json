@@ -4,6 +4,7 @@
   "description": "",
   "main": "main_v0.1.js",
   "dependencies": {
+    "firebase-admin": "^5.12.1",
     "jsmodbus": "^2.4.0",
     "pubnub": "^4.20.3"
   },
