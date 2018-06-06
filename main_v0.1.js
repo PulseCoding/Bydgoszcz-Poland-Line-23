@@ -187,7 +187,7 @@ pubnub = new PubNub({
 	uuid: "L23"
 });
 var admin = require("firebase-admin");
-var serviceAccount = require("./data/byd-barcode-q-md-firebase-adminsdk-la3rl-44e58f0695.json");
+var serviceAccount = require("./data/byd-barcode-q-md-firebase-adminsdk-la3rl-ebc4fce264.json");
 admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 	databaseURL: "https://byd-barcode-q-md.firebaseio.com"
