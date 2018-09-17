@@ -4,7 +4,7 @@
 var modbus = require('jsmodbus');
 var fs = require('fs');
 var PubNub = require('pubnub');
-//var stampit = require('stampit');
+var stampit = require('stampit');
 //var mongoClient = require('mongodb').MongoClient
 //Asignar host, puerto y otros par ametros al cliente Modbus
 var client = modbus.client.tcp.complete({
