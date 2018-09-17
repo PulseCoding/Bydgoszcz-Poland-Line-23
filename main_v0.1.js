@@ -199,6 +199,7 @@ db.collection('masterData').doc('line23').get().then(doc => {
 		masterData = doc.data().content
 		console.log('Saved')
 	}
+	
 }).catch(err => {
 	console.log('Error occurred ' + err)
 })
