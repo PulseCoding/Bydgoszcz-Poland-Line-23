@@ -3,7 +3,8 @@
 // ----------------------------------------------------//
 var modbus = require('jsmodbus');
 var fs = require('fs');
-var PubNub = require('pubnub');
+var httpClient = require('node-rest-client').Client;
+var clientHttp = new httpClient();
 var stampit = require('stampit');
 //var mongoClient = require('mongodb').MongoClient
 //Asignar host, puerto y otros par ametros al cliente Modbus
@@ -171,7 +172,7 @@ var BarcodeLabel = '',
 	eanGlobal = '0',
 	itfOuterGlobal = '0';
 var secEOL = 0,
-	secPubNub = 0;
+	secPubNub = 5*60;
 var publishConfig;
 
 var files = fs.readdirSync("/home/oee/Pulse/BYD_L23_LOGS/"); //Leer documentos
@@ -180,12 +181,6 @@ var text2send = []; //Vector a enviar
 var flagInfo2Send = 0;
 var i = 0;
 
-
-pubnub = new PubNub({
-  publishKey : "pub-c-82cf38a9-061a-43e2-8a0f-21a6770ab473",
-  subscribeKey : "sub-c-e14aa146-bab0-11e8-b6ef-c2e67adadb66",
-  uuid : "bydgoszcz-L23-monitoring"
-});
 var admin = require("firebase-admin");
 var serviceAccount = require("./data/byd-barcode-q-md-firebase-adminsdk-la3rl-ebc4fce264.json");
 admin.initializeApp({
@@ -199,20 +194,12 @@ db.collection('masterData').doc('line23').get().then(doc => {
 		masterData = doc.data().content
 		console.log('Saved')
 	}
-	
+
 }).catch(err => {
 	console.log('Error occurred ' + err)
 })
-var pubnubVariable = new PubNub({
-	publishKey: 'pub-c-00bd1ac0-2eb7-4a70-9aeb-335c72b1ced5',
-	subscribeKey: 'sub-c-4dd746bc-287a-11e8-9322-6e836ba663ef',
-	uuid: 'barcodeSetToArkToArk',
-	ssl: true
-})
-pubnubVariable.subscribe({
-	channels: ['barcodeSetter']
-})
 
+/*
 pubnubVariable.addListener({
 	status: function(statusEvent) {
 		if (statusEvent.category === "PNConnectedCategory") {
@@ -259,9 +246,16 @@ function findBarcode(ean, outer) {
 	}
 	return false
 }
+*/
+// registering remote methods
+clientHttp.registerMethod("postMethod", "http://35.160.68.187:23000/heartbeatLine/Byd", "POST");
 
-function senderData() {
-	pubnub.publish(publishConfig, function(status, response) {});
+
+function senderData(){
+  clientHttp.methods.postMethod(publishConfig, function (data, response) {
+      // parsed response body as js object
+      console.log(data.toString());
+  });
 }
 // --------------------------------------------------------- //
 //Función que realiza las instrucciones de lectura de datos  //
@@ -286,12 +280,12 @@ var DoRead = function() {
 
 		secPubNub = 0;
 		publishConfig = {
-			channel: "BYD_Monitor",
-			message: {
-				line: "23",
-				tt: Date.now(),
-				machines: text2send
-			}
+			headers: { "Content-Type": "application/json" },
+			data: {              message : {
+													line: "23",
+													tt: Date.now(),
+													machines:text2send
+												}}
 		};
 		senderData();
 	} else {
